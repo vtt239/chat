@@ -12,6 +12,7 @@ import {
   Keyboard,
   Image,
   ImageBackground,
+  ScrollView
 } from "react-native";
 import AsyncStorage from '@react-native-community/async-storage';
 
@@ -19,7 +20,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
 import * as firebase from 'firebase';
-import { ScrollView } from "react-native-gesture-handler";
+// import { ScrollView } from "react-native-gesture-handler";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAW8Cm5ZoHCXdGPRPV_1oydF5Yh6iSOV0E",
@@ -36,9 +37,9 @@ if (!firebase.apps.length) {
 }
 
 const LineChat = (props) => (
-  <View>
-    <Text style={{ fontSize: 30 }}>{props.userName}</Text>
-    <Text>{props.chatContent}</Text>
+  <View style={{ backgroundColor: 'gray', borderRadius: 10, margin: 5 }}>
+    <Text style={{ fontSize: 12, margin: 5, color: '#00bfff' }}>{props.userName}</Text>
+    <Text style={{ fontSize: 24, margin: 5 }} >{props.chatContent}</Text>
   </View>
 )
 
@@ -74,14 +75,14 @@ export default function Chatroom({ navigation }) {
   }
 
   const renderLine = (item) => {
-    if(item.userName === userName){
-      return(
+    if (item.userName === userName) {
+      return (
         <View style={{ alignItems: 'flex-end' }} >
-          <LineChat userName = "YOU" chatContent = {item.chatContent} />
+          <LineChat userName="YOU" chatContent={item.chatContent} />
         </View>
       );
     }
-    return(
+    return (
       <LineChat userName={item.userName} chatContent={item.chatContent} />
     );
   }
@@ -93,28 +94,41 @@ export default function Chatroom({ navigation }) {
     });
   }
 
-  function getDatachat(userId) {
-    firebase.database().ref('users/' + userId).on('value', (snapshot) => {
-      const highscore = snapshot.val().highscore;
-      console.log("New high score: " + highscore);
-    });
-  }
+  _renderChatLine = (item) => {
+    if (item.userName === this.state.username) {
+      return (
+        <View style={{ alignItems: 'flex-end' }} >
+          <LineChat userName="YOU" chatContent={item.chatContent} />
+        </View>
+      );
+    }
+    return (
+      <LineChat userName={item.userName} chatContent={item.chatContent} />
+    );
+  };
+
 
   return (
     <KeyboardAvoidingView style={styles.container}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={{ flexDirection: "column", flex: 1 }}>
           <View style={{ flex: 9 / 10 }}>
-            
-            <ScrollView style={{ flex: 1 }} >
+            <ScrollView style={{ flex: 1 }}>
               {
-                data.map((item) => (
-                  // <View style={{ alignItems: 'flex-start' }} >
-                  //   <Text style={{ fontSize: 30 }}>{item.userName}</Text>
-                  //   <Text>{item.chatContent}</Text>
-                  // </View>
-                  <LineChat userName = {item.userName} chatContent = {item.chatContent} />
-                ))
+                data.map((item) => {
+                  if (item.userName === userName) {
+                    return (
+                      <View style={{ alignItems: 'flex-end' }} >
+                        <LineChat userName="YOU" chatContent={item.chatContent} />
+                      </View>
+                    );
+                  }
+                  return (
+                    <View style={{ alignItems: 'flex-start' }} >
+                      <LineChat userName={item.userName} chatContent={item.chatContent} />
+                    </View>
+                  );
+                })
               }
             </ScrollView>
           </View>
@@ -145,6 +159,7 @@ export default function Chatroom({ navigation }) {
               }}
             >
               <Button title="Gửi" onPress={() => {
+                scrollToEnd({animated: true})
                 getData();
                 storeChat(userName, chatContent)
                 setRefresh(true)
