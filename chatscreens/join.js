@@ -5,9 +5,18 @@ import { Button, View, Text } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { TextInput } from "react-native-gesture-handler";
+import AsyncStorage from '@react-native-community/async-storage';
 
 export default function JoinScreen({ navigation }) {
     const [name, setName] = useState();
+
+    const storeName = async (value) => {
+      try {
+        await AsyncStorage.setItem('name', value)
+      } catch (e) {
+        // saving error
+      }
+    }
 
 
   return (
@@ -16,8 +25,9 @@ export default function JoinScreen({ navigation }) {
       <TextInput style={{ fontSize: 24, borderWidth: 1, marginHorizontal: 5 }}  placeholder= "user name" onChangeText={setName} />
       <Button
         title="JOIN NOW"
-        onPress={() => {
-          navigation.navigate("Chatroom");
+        onPress={()=>{
+          storeName(name);
+          navigation.navigate("Chatroom")
         }}
       />
     </View>
